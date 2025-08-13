@@ -1,0 +1,71 @@
+[project]
+name = "desafio-aiqfome-api"
+version = "1.0.0"
+description = ""
+authors = [{ name = "Gabriel Cenciati", email = "gbrcenciati@gmail.com" }]
+license = { text = "MIT" }
+readme = "README.md"
+requires-python = ">=3.10,<4.0"
+dependencies = [
+    "structlog (>=25.4.0,<26.0.0)",
+    "argon2-cffi (>=25.1.0,<26.0.0)",
+    "fastapi (>=0.116.1,<0.117.0)",
+    "uvicorn (>=0.35.0,<0.36.0)",
+    "pydantic (>=2.11.7,<3.0.0)",
+    "pydantic-settings (>=2.10A.1,<3.0.0)",
+    "psycopg[binary] (>=3.2.9,<4.0.0)",
+    "psycopg-pool (>=3.2.6,<4.0.0)",
+    "pyjwt (>=2.10.1,<3.0.0)",
+    "httpx (>=0.28.1,<0.29.0)",
+]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+package-mode = false
+
+[tool.poetry.group.dev.dependencies]
+taskipy = "^1.14.1"
+pytest = "^8.4.1"
+black = "^25.1.0"
+ruff = "^0.12.3"
+isort = "^6.0.1"
+testcontainers = { extras = ["postgresql"], version = "^4.12.0" }
+bandit = { extras = ["toml"], version = "^1.8.6" }
+
+[tool.taskipy.settings]
+use_vars = true
+
+[tool.taskipy.variables]
+dc = "docker compose run --rm --remove-orphans app"
+
+[tool.taskipy.tasks]
+lint_ci = { cmd = "black . && isort . && ruff check .", help = "on CI pipeline: formats the code and runs linting checks without docker" }
+test_ci = { cmd = "pytest tests/", help = "on CI pipeline: runs full test suite without docker" }
+
+pre_lint = { cmd = "{dc} black . && {dc} isort .", help = "formats the code using black and isort" }
+lint = { cmd = "{dc} ruff check . & {dc} bandit -c pyproject.toml -r .", help = "runs linting checks using ruff" }
+test_unit = { cmd = "{dc} pytest -m unit tests/", help = "runs all unit tests" }
+test_integration = { cmd = "{dc} pytest -m integration tests/", help = "runs all integration tests" }
+test = { cmd = "{dc} pytest tests/", help = "runs full test suite" }
+
+start = { cmd = "docker compose up --build", help = "starts the application" }
+generate_requirements = { cmd = "poetry export --without-hashes --without dev -f requirements.txt -o requirements.txt", help = "generates the requirements.txt file without development dependencies" }
+
+[tool.pytest.ini_options]
+markers = ["unit", "integration", "e2e"]
+addopts = [
+    "-l",
+    "--tb=short",
+    "--strict-markers",
+    "--disable-warnings",
+    "--log-cli-level=CRITICAL",
+]
+
+[tool.bandit]
+exclude_dirs = ["tests"]
+
+[tool.poetry.requires-plugins]
+poetry-plugin-export = ">=1.8"

@@ -1,0 +1,56 @@
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  pg_data:
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: development/Dockerfile.dev
+    networks:
+      - app_network
+    ports:
+      - "${API_PORT}:8080"
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 2s
+
+  db:
+    image: postgres:17.4
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./development/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - app_network
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_HOST=${DATABASE_HOST}
+      - POSTGRES_PORT=${DATABASE_PORT}
+      - POSTGRES_DB=${DATABASE_NAME}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER}"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 2s
