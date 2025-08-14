@@ -1,0 +1,37 @@
+from __future__ import annotations
+
+from datetime import datetime, timedelta, timezone
+from typing import TypedDict
+
+import jwt
+from fastapi import HTTPException
+
+from app.__core__.application.gateways.jwt_service import IJWTService
+from app.__core__.application.settings import get_settings
+
+settings = get_settings()
+
+TokenPayload = TypedDict("TokenPayload", {"sub": str})
+
+
+class JWTService(IJWTService):
+    def create_token(self, user_id: str) -> str:
+        expire_at = datetime.now(timezone.utc) + timedelta(
+            days=settings.JWT_EXPIRE_DAYS
+        )
+        return jwt.encode(
+            {
+                "sub": user_id,
+                "exp": expire_at,
+            },
+            settings.JWT_SECRET_KEY,
+            algorithm="HS256",
+        )
+
+    def verify_token(self, token: str) -> dict:
+        try:
+            return jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=["HS256"])
+        except jwt.ExpiredSignatureError:
+            raise HTTPException(status_code=401, detail="token_expired")
+        except Exception:
+            raise HTTPException(status_code=401, detail="invalid_token")
