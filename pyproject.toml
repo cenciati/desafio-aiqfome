@@ -1,7 +1,7 @@
 [project]
-name = "desafio-aiqfome-api"
+name = "desafio-aiqfome-favorites-api"
 version = "1.0.0"
-description = ""
+description = "Desafio Aiqfome - API de favoritos"
 authors = [{ name = "Gabriel Cenciati", email = "gbrcenciati@gmail.com" }]
 license = { text = "MIT" }
 readme = "README.md"
@@ -13,10 +13,10 @@ dependencies = [
     "uvicorn (>=0.35.0,<0.36.0)",
     "pydantic (>=2.11.7,<3.0.0)",
     "pydantic-settings (>=2.10A.1,<3.0.0)",
-    "psycopg[binary] (>=3.2.9,<4.0.0)",
-    "psycopg-pool (>=3.2.6,<4.0.0)",
     "pyjwt (>=2.10.1,<3.0.0)",
     "httpx (>=0.28.1,<0.29.0)",
+    "sqlmodel (>=0.0.24,<0.0.25)",
+    "psycopg[binary] (>=3.2.9,<4.0.0)",
 ]
 
 [build-system]
@@ -34,6 +34,7 @@ ruff = "^0.12.3"
 isort = "^6.0.1"
 testcontainers = { extras = ["postgresql"], version = "^4.12.0" }
 bandit = { extras = ["toml"], version = "^1.8.6" }
+pytest-asyncio = "^1.1.0"
 
 [tool.taskipy.settings]
 use_vars = true
@@ -66,6 +67,7 @@ addopts = [
 
 [tool.bandit]
 exclude_dirs = ["tests"]
+skip_tests = ["B104"]
 
 [tool.poetry.requires-plugins]
 poetry-plugin-export = ">=1.8"
