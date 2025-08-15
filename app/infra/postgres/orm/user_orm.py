@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import List
 from uuid import UUID
 
-from sqlmodel import Field, SQLModel, ARRAY, Column, Enum
+from sqlmodel import ARRAY, Column, Enum, Field, SQLModel
 
 from app.__core__.domain.value_object.permission import Permission
 

@@ -1,42 +1,25 @@
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.__core__.application.logger import logger
-
 from app.__core__.application.settings import get_settings
 from app.__core__.application.use_case.create_customer_use_case import (
-    CreateCustomerInput,
-    CreateCustomerOutput,
-    ICreateCustomerUseCase,
-)
+    CreateCustomerInput, CreateCustomerOutput, ICreateCustomerUseCase)
 from app.__core__.application.use_case.delete_customer_use_case import (
-    DeleteCustomerInput,
-    IDeleteCustomerUseCase,
-)
+    DeleteCustomerInput, IDeleteCustomerUseCase)
 from app.__core__.application.use_case.fetch_customer_use_case import (
-    FetchCustomerInput,
-    FetchCustomerOutput,
-    IFetchCustomerUseCase,
-)
+    FetchCustomerInput, FetchCustomerOutput, IFetchCustomerUseCase)
 from app.__core__.application.use_case.list_customers_use_case import (
-    IListCustomersUseCase,
-    ListCustomersInput,
-    ListCustomersOutput,
-)
+    IListCustomersUseCase, ListCustomersInput, ListCustomersOutput)
 from app.__core__.application.use_case.update_customer_use_case import (
-    IUpdateCustomerUseCase,
-    UpdateCustomerInput,
-    UpdateCustomerRequestInput,
-)
+    IUpdateCustomerUseCase, UpdateCustomerInput, UpdateCustomerRequestInput)
 from app.__core__.domain.entity.user import User
 from app.__core__.domain.exception.exception import ValidationError
 from app.__core__.domain.value_object.permission import Permission
-from app.infra.dependency import (
-    get_create_customer_use_case,
-    get_delete_customer_use_case,
-    get_fetch_customer_use_case,
-    get_list_customers_use_case,
-    get_update_customer_use_case,
-)
+from app.infra.dependency import (get_create_customer_use_case,
+                                  get_delete_customer_use_case,
+                                  get_fetch_customer_use_case,
+                                  get_list_customers_use_case,
+                                  get_update_customer_use_case)
 from app.infra.security import require_permission
 
 router = APIRouter()

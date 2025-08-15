@@ -1,9 +1,9 @@
-import pytest
 from datetime import datetime
 from uuid import uuid4
 
-from app.__core__.domain.entity.customer import Customer
-from app.__core__.domain.entity.customer import CreateCustomerProps
+import pytest
+
+from app.__core__.domain.entity.customer import CreateCustomerProps, Customer
 from app.__core__.domain.exception.exception import ValidationError
 from app.infra.postgres.orm.customer_orm import CustomerORM
 

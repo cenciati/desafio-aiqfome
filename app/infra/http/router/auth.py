@@ -2,17 +2,14 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 
 from app.__core__.application.logger import logger
 from app.__core__.application.settings import get_settings
-from app.__core__.application.use_case.sign_in_use_case import (
-    ISignInUseCase,
-    SignInInput,
-    SignInOutput,
-)
-from app.__core__.application.use_case.sign_up_use_case import (
-    ISignUpUseCase,
-    SignUpInput,
-    SignUpOutput,
-)
-from app.__core__.domain.exception.exception import AuthenticationError, ValidationError
+from app.__core__.application.use_case.sign_in_use_case import (ISignInUseCase,
+                                                                SignInInput,
+                                                                SignInOutput)
+from app.__core__.application.use_case.sign_up_use_case import (ISignUpUseCase,
+                                                                SignUpInput,
+                                                                SignUpOutput)
+from app.__core__.domain.exception.exception import (AuthenticationError,
+                                                     ValidationError)
 from app.infra.dependency import get_sign_in_use_case, get_sign_up_use_case
 from app.infra.security import validate_api_key
 

@@ -4,9 +4,7 @@ from typing import Optional
 
 from app.__core__.domain.entity.customer import UpdateCustomerProps
 from app.__core__.domain.exception.exception import ValidationError
-from app.__core__.domain.repository.repository import (
-    ICustomerRepository,
-)
+from app.__core__.domain.repository.repository import ICustomerRepository
 
 
 @dataclass(slots=True, frozen=True, kw_only=True)

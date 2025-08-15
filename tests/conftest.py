@@ -1,6 +1,6 @@
 import pytest
 
-from app.__core__.application.settings import get_settings, Settings
+from app.__core__.application.settings import Settings, get_settings
 
 
 @pytest.fixture

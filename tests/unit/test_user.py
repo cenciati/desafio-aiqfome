@@ -1,12 +1,12 @@
 from datetime import datetime
 from uuid import uuid4
+
 import pytest
 
 from app.__core__.domain.entity.user import User
+from app.__core__.domain.exception.exception import ValidationError
 from app.__core__.domain.value_object.password import Password
 from app.__core__.domain.value_object.permission import Permission
-from app.__core__.domain.exception.exception import ValidationError
-from app.infra.postgres.orm.user_orm import UserORM
 
 
 @pytest.mark.unit

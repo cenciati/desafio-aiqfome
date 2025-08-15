@@ -3,9 +3,7 @@ from dataclasses import dataclass
 
 from app.__core__.domain.entity.customer import Customer
 from app.__core__.domain.exception.exception import ValidationError
-from app.__core__.domain.repository.repository import (
-    ICustomerRepository,
-)
+from app.__core__.domain.repository.repository import ICustomerRepository
 
 
 @dataclass(slots=True, frozen=True, kw_only=True)

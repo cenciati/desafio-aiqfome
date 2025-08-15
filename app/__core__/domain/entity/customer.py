@@ -7,9 +7,8 @@ from typing import List, Optional
 
 from app.__core__.domain.entity.base_domain_object import BaseDomainObject
 from app.__core__.domain.exception.exception import ValidationError
-from app.infra.postgres.orm.customer_favorite_product_orm import (
-    CustomerFavoriteProductORM,
-)
+from app.infra.postgres.orm.customer_favorite_product_orm import \
+    CustomerFavoriteProductORM
 from app.infra.postgres.orm.customer_orm import CustomerORM
 
 EMAIL_REGEX = re.compile(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
@@ -80,8 +79,8 @@ class Customer(BaseDomainObject):
             **{
                 "name": props.name if props.name else self.name,
                 "email": props.email if props.email else self.email,
-                "updated_at": datetime.now()
-                if props.name or props.email
-                else self.updated_at,
+                "updated_at": (
+                    datetime.now() if props.name or props.email else self.updated_at
+                ),
             },
         )

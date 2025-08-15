@@ -9,53 +9,44 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.__core__.application.gateways.jwt_service import IJWTService
 from app.__core__.application.gateways.product_catalog import IProductCatalog
 from app.__core__.application.settings import get_settings
-from app.__core__.application.use_case.create_customer_use_case import (
-    CreateCustomerUseCase,
-)
-from app.__core__.application.use_case.delete_customer_use_case import (
-    DeleteCustomerUseCase,
-)
-from app.__core__.application.use_case.fetch_customer_use_case import (
-    FetchCustomerUseCase,
-)
-from app.__core__.application.use_case.list_customers_use_case import (
-    ListCustomersUseCase,
-)
+from app.__core__.application.use_case.create_customer_use_case import \
+    CreateCustomerUseCase
+from app.__core__.application.use_case.delete_customer_use_case import \
+    DeleteCustomerUseCase
+from app.__core__.application.use_case.fetch_customer_use_case import \
+    FetchCustomerUseCase
+from app.__core__.application.use_case.list_customers_use_case import \
+    ListCustomersUseCase
 from app.__core__.application.use_case.sign_in_use_case import SignInUseCase
 from app.__core__.application.use_case.sign_up_use_case import SignUpUseCase
-from app.__core__.application.use_case.update_customer_use_case import (
-    UpdateCustomerUseCase,
-)
-from app.infra.fakestore.fakestore_product_catalog import FakeStoreProductCatalog
+from app.__core__.application.use_case.update_customer_use_case import \
+    UpdateCustomerUseCase
+from app.infra.fakestore.fakestore_product_catalog import \
+    FakeStoreProductCatalog
 from app.infra.jwt.jwt_service import JWTService
 from app.infra.postgres.database import AsyncSessionFactory
-from app.infra.postgres.repository.customer_repository import (
-    PostgresCustomerRepository,
-)
-from app.infra.postgres.repository.user_repository import PostgresUserRepository
+from app.infra.postgres.repository.customer_repository import \
+    PostgresCustomerRepository
+from app.infra.postgres.repository.user_repository import \
+    PostgresUserRepository
 
 if TYPE_CHECKING:
-    from app.__core__.domain.repository.repository import (
-        ICustomerRepository,
-        IUserRepository,
-    )
-    from app.__core__.application.use_case.create_customer_use_case import (
-        ICreateCustomerUseCase,
-    )
-    from app.__core__.application.use_case.list_customers_use_case import (
-        IListCustomersUseCase,
-    )
-    from app.__core__.application.use_case.fetch_customer_use_case import (
-        IFetchCustomerUseCase,
-    )
-    from app.__core__.application.use_case.delete_customer_use_case import (
-        IDeleteCustomerUseCase,
-    )
-    from app.__core__.application.use_case.sign_in_use_case import ISignInUseCase
-    from app.__core__.application.use_case.sign_up_use_case import ISignUpUseCase
-    from app.__core__.application.use_case.update_customer_use_case import (
-        IUpdateCustomerUseCase,
-    )
+    from app.__core__.application.use_case.create_customer_use_case import \
+        ICreateCustomerUseCase
+    from app.__core__.application.use_case.delete_customer_use_case import \
+        IDeleteCustomerUseCase
+    from app.__core__.application.use_case.fetch_customer_use_case import \
+        IFetchCustomerUseCase
+    from app.__core__.application.use_case.list_customers_use_case import \
+        IListCustomersUseCase
+    from app.__core__.application.use_case.sign_in_use_case import \
+        ISignInUseCase
+    from app.__core__.application.use_case.sign_up_use_case import \
+        ISignUpUseCase
+    from app.__core__.application.use_case.update_customer_use_case import \
+        IUpdateCustomerUseCase
+    from app.__core__.domain.repository.repository import (ICustomerRepository,
+                                                           IUserRepository)
 
 
 settings = get_settings()

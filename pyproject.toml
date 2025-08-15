@@ -47,7 +47,7 @@ lint_ci = { cmd = "black . && isort . && ruff check .", help = "on CI pipeline: 
 test_ci = { cmd = "pytest tests/", help = "on CI pipeline: runs full test suite without docker" }
 
 pre_lint = { cmd = "{dc} black . && {dc} isort .", help = "formats the code using black and isort" }
-lint = { cmd = "{dc} ruff check . & {dc} bandit -c pyproject.toml -r .", help = "runs linting checks using ruff" }
+lint = { cmd = "{dc} ruff check . --fix && {dc} bandit -c pyproject.toml -r .", help = "runs linting checks using ruff and bandit" }
 test_unit = { cmd = "{dc} pytest -m unit tests/", help = "runs all unit tests" }
 test_integration = { cmd = "{dc} pytest -m integration tests/", help = "runs all integration tests" }
 test = { cmd = "{dc} pytest tests/", help = "runs full test suite" }
@@ -67,7 +67,7 @@ addopts = [
 
 [tool.bandit]
 exclude_dirs = ["tests"]
-skip_tests = ["B104"]
+skips = ["B104"]
 
 [tool.poetry.requires-plugins]
 poetry-plugin-export = ">=1.8"

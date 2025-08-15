@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Generic, List, Optional, TypeVar
+from typing import Generic, List, Optional, TypeVar
 
 from app.__core__.domain.entity.customer import Customer
 from app.__core__.domain.entity.product import Product

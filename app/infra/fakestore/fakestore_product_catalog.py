@@ -1,5 +1,6 @@
 import asyncio
 from typing import List
+
 from httpx import AsyncClient
 
 from app.__core__.application.gateways.product_catalog import IProductCatalog

@@ -1,6 +1,7 @@
 from dataclasses import dataclass
-import pytest
 from uuid import UUID, uuid4
+
+import pytest
 
 from app.__core__.domain.entity.base_domain_object import BaseDomainObject
 

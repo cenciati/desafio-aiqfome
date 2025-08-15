@@ -1,11 +1,9 @@
 import pytest
 
 from app.__core__.domain.exception.exception import ValidationError
-from app.__core__.domain.value_object.password import (
-    PASSWORD_MAX_LENGTH,
-    PASSWORD_MIN_LENGTH,
-    Password,
-)
+from app.__core__.domain.value_object.password import (PASSWORD_MAX_LENGTH,
+                                                       PASSWORD_MIN_LENGTH,
+                                                       Password)
 
 
 @pytest.mark.unit
