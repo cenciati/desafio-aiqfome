@@ -5,6 +5,7 @@ from uuid import uuid4
 from app.__core__.domain.entity.customer import Customer
 from app.__core__.domain.entity.customer import CreateCustomerProps
 from app.__core__.domain.exception.exception import ValidationError
+from app.infra.postgres.orm.customer_orm import CustomerORM
 
 
 @pytest.mark.unit
@@ -31,18 +32,18 @@ class TestCustomer:
         assert isinstance(customer.updated_at, datetime)
 
     def test_should_convert_customer_to_domain(self):
-        raw = {
-            "id": str(uuid4()),
-            "name": "Foo Bar",
-            "email": "foo@example.com",
-            "created_at": datetime(2023, 1, 1, 10, 0, 0),
-            "updated_at": datetime(2023, 1, 1, 12, 0, 0),
-        }
+        raw = CustomerORM(
+            id=str(uuid4()),
+            name="Foo Bar",
+            email="foo@example.com",
+            created_at=datetime(2023, 1, 1, 10, 0, 0),
+            updated_at=datetime(2023, 1, 1, 12, 0, 0),
+        )
 
         customer = Customer.to_domain(raw)
 
-        assert str(customer.id) == raw["id"]
-        assert customer.name == raw["name"]
-        assert customer.email == raw["email"]
-        assert customer.created_at == raw["created_at"]
-        assert customer.updated_at == raw["updated_at"]
+        assert str(customer.id) == raw.id
+        assert customer.name == raw.name
+        assert customer.email == raw.email
+        assert customer.created_at == raw.created_at
+        assert customer.updated_at == raw.updated_at

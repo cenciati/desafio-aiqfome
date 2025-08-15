@@ -8,8 +8,9 @@ from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 
 from app.__core__.application.logger import logger
 from app.__core__.application.settings import get_settings
+from app.infra.dependency import close_httpx_client
 from app.infra.http.middleware.correlation_id import CorrelationIdMiddleware
-from app.infra.http.router import auth
+from app.infra.http.router import auth, customers
 from app.infra.postgres.database import close_db, init_db
 
 settings = get_settings()
@@ -23,6 +24,7 @@ async def lifespan(_: FastAPI):
     yield
 
     await close_db()
+    await close_httpx_client()
     logger.info("app_shutdown_complete")
 
 
@@ -48,6 +50,7 @@ def bootstrap() -> FastAPI:
     app.add_middleware(GZipMiddleware, minimum_size=500, compresslevel=5)
 
     app.include_router(auth.router, prefix="/auth", tags=["auth"])
+    app.include_router(customers.router, prefix="/customers", tags=["customers"])
 
     @app.get("/health")
     async def health_check():

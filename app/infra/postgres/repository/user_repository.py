@@ -17,7 +17,7 @@ class PostgresUserRepository(IUserRepository):
         self.session.add(user)
         await self.session.commit()
 
-    async def fetch_one_by_id(self, id: str) -> Optional[User]:
+    async def fetch_one(self, id: str) -> Optional[User]:
         result = await self.session.execute(select(UserORM).where(UserORM.id == id))
         user_orm = result.scalar_one_or_none()
         if user_orm is None:
@@ -30,12 +30,3 @@ class PostgresUserRepository(IUserRepository):
         if user_orm is None:
             return None
         return User.to_domain(user_orm)
-
-    async def update_one(self, new_entity: User) -> None:
-        updated_user = UserORM.model_validate(new_entity.to_orm())
-        self.session.add(updated_user)
-        await self.session.commit()
-
-    async def delete_one(self, entity: User) -> None:
-        self.session.delete(entity.to_orm())
-        await self.session.commit()

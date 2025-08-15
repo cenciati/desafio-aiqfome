@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS customers (
 CREATE TABLE IF NOT EXISTS products_cache (
     id BIGINT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
-    image_url VARCHAR(255) NOT NULL,
+    image_url TEXT NOT NULL,
     price DECIMAL(10, 2) NOT NULL,
     review_rate DECIMAL(10, 2) NOT NULL,
     review_count INT NOT NULL,

@@ -1,13 +1,9 @@
-from __future__ import annotations
-
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import Optional
 from uuid import UUID
 
+from sqlalchemy.orm import Mapped
 from sqlmodel import Field, Relationship, SQLModel
-
-if TYPE_CHECKING:
-    from app.infra.postgres.orm.customer_orm import CustomerORM
 
 
 class CustomerFavoriteProductORM(SQLModel, table=True):
@@ -17,4 +13,9 @@ class CustomerFavoriteProductORM(SQLModel, table=True):
     product_id: UUID = Field(primary_key=True)
     favorited_at: datetime
 
-    customer: CustomerORM = Relationship(back_populates="favorite_products")
+    customer: Mapped[Optional["CustomerORM"]] = Relationship(
+        back_populates="favorite_products"
+    )
+
+
+from app.infra.postgres.orm.customer_orm import CustomerORM  # noqa: E402

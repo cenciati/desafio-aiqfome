@@ -5,7 +5,6 @@ from typing import List
 from app.__core__.domain.entity.user import User
 from app.__core__.domain.exception.exception import ValidationError
 from app.__core__.domain.repository.repository import IUserRepository
-from app.__core__.domain.value_object.password import Password
 from app.__core__.domain.value_object.permission import Permission
 
 
@@ -24,8 +23,7 @@ class SignUpOutput:
 
 class ISignUpUseCase:
     @abstractmethod
-    async def execute(self, input_dto: SignUpInput) -> SignUpOutput:
-        pass
+    async def execute(self, input_dto: SignUpInput) -> SignUpOutput: ...
 
 
 class SignUpUseCase(ISignUpUseCase):
@@ -36,12 +34,7 @@ class SignUpUseCase(ISignUpUseCase):
         if await self.user_repository.fetch_one_by_slug(input_dto.username.lower()):
             raise ValidationError("username_already_exists")
 
-        password = Password.create(input_dto.password)
-        user = User(
-            slug=input_dto.username,
-            password=password,
-            permissions=input_dto.permissions,
-        )
+        user = User.create(input_dto)
         await self.user_repository.insert_one(user)
 
         return SignUpOutput(id=user.str_id, username=user.slug)

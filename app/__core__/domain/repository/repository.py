@@ -4,7 +4,7 @@ from typing import Any, Dict, Generic, List, Optional, TypeVar
 from app.__core__.domain.entity.customer import Customer
 from app.__core__.domain.entity.product import Product
 from app.__core__.domain.entity.user import User
-from app.__core__.domain.repository.pagination import Pagination
+from app.__core__.domain.repository.pagination import PaginationInput
 
 T = TypeVar("T")
 
@@ -14,13 +14,7 @@ class IBaseRepository(Generic[T], ABC):
     async def insert_one(self, entity: T) -> None: ...
 
     @abstractmethod
-    async def fetch_one_by_id(self, id: str) -> Optional[T]: ...
-
-    @abstractmethod
-    def update_one(self, entity: T) -> None: ...
-
-    @abstractmethod
-    def delete_one(self, entity: T) -> None: ...
+    async def fetch_one(self, id: str) -> Optional[T]: ...
 
 
 class IUserRepository(IBaseRepository[User]):
@@ -30,9 +24,19 @@ class IUserRepository(IBaseRepository[User]):
 
 class ICustomerRepository(IBaseRepository[Customer]):
     @abstractmethod
-    def fetch_many(
-        self, pagination: Pagination, filters: Optional[Dict[str, Any]]
-    ) -> List[Customer]: ...
+    async def fetch_one_by_email(self, email: str) -> Optional[Customer]: ...
+
+    @abstractmethod
+    async def fetch_many(self, pagination: PaginationInput) -> List[Customer]: ...
+
+    @abstractmethod
+    async def count_all(self) -> int: ...
+
+    @abstractmethod
+    async def update_one(self, entity: Customer) -> None: ...
+
+    @abstractmethod
+    async def delete_one(self, id: str) -> None: ...
 
 
 class IProductRepository(IBaseRepository[Product]): ...

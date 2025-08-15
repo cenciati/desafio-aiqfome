@@ -11,3 +11,8 @@ class BaseDomainObject:
     @property
     def str_id(self) -> str:
         return str(self.id)
+
+    def _replace(self, **changes) -> "BaseDomainObject":
+        from dataclasses import replace
+
+        return replace(self, **changes)

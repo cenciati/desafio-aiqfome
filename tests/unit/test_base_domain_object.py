@@ -1,7 +1,13 @@
+from dataclasses import dataclass
 import pytest
 from uuid import UUID, uuid4
 
 from app.__core__.domain.entity.base_domain_object import BaseDomainObject
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class BaseDomainObjectStub(BaseDomainObject):
+    test_attr: str
 
 
 @pytest.mark.unit
@@ -15,3 +21,11 @@ class TestBaseDomainObject:
     def test_should_generate_id_default(self):
         obj = BaseDomainObject()
         assert isinstance(obj.id, UUID)
+
+    def test_should_replace_attributes(self):
+        obj = BaseDomainObjectStub(test_attr="test")
+
+        new_obj = obj._replace(test_attr="test2")
+
+        assert obj.test_attr == "test"
+        assert new_obj.test_attr == "test2"

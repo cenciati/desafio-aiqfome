@@ -19,8 +19,7 @@ class SignInOutput:
 
 class ISignInUseCase:
     @abstractmethod
-    async def execute(self, input_dto: SignInInput) -> SignInOutput:
-        pass
+    async def execute(self, input_dto: SignInInput) -> SignInOutput: ...
 
 
 class SignInUseCase(ISignInUseCase):

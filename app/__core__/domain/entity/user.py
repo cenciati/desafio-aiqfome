@@ -12,8 +12,8 @@ from app.infra.postgres.orm.user_orm import UserORM
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
-class CreateProductProps:
-    slug: str
+class CreateUserProps:
+    username: str
     password: str
     permissions: List[Permission]
 
@@ -35,6 +35,14 @@ class User(BaseDomainObject):
             raise ValidationError("invalid_permissions_data_type")
 
     @classmethod
+    def create(cls, props: CreateUserProps) -> "User":
+        return cls(
+            slug=props.username,
+            password=Password.create(props.password),
+            permissions=props.permissions,
+        )
+
+    @classmethod
     def to_domain(cls, raw_user: UserORM) -> User:
         return cls(
             id=raw_user.id,
@@ -52,3 +60,6 @@ class User(BaseDomainObject):
             created_at=self.created_at,
             updated_at=self.updated_at,
         )
+
+    def has_permission(self, permission: Permission) -> bool:
+        return permission in self.permissions
