@@ -5,7 +5,7 @@ description = "Desafio Aiqfome - API de favoritos"
 authors = [{ name = "Gabriel Cenciati", email = "gbrcenciati@gmail.com" }]
 license = { text = "MIT" }
 readme = "README.md"
-requires-python = ">=3.10,<4.0"
+requires-python = ">=3.13,<4.0"
 dependencies = [
     "structlog (>=25.4.0,<26.0.0)",
     "argon2-cffi (>=25.1.0,<26.0.0)",

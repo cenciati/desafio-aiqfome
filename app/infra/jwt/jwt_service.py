@@ -15,13 +15,13 @@ TokenPayload = TypedDict("TokenPayload", {"sub": str})
 
 
 class JWTService(IJWTService):
-    def create_token(self, user_id: str) -> str:
+    def create_token(self, customer_id: str) -> str:
         expire_at = datetime.now(timezone.utc) + timedelta(
             days=settings.JWT_EXPIRE_DAYS
         )
         return jwt.encode(
             {
-                "sub": user_id,
+                "sub": customer_id,
                 "exp": expire_at,
             },
             settings.JWT_SECRET_KEY,

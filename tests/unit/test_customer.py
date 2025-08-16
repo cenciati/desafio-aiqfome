@@ -5,6 +5,7 @@ import pytest
 
 from app.__core__.domain.entity.customer import CreateCustomerProps, Customer
 from app.__core__.domain.exception.exception import ValidationError
+from app.__core__.domain.value_object.password import Password
 from app.infra.postgres.orm.customer_orm import CustomerORM
 
 
@@ -20,14 +21,23 @@ class TestCustomer:
     )
     def test_should_raise_validation_error_when_email_is_invalid(self, invalid_email):
         with pytest.raises(ValidationError) as exc:
-            Customer(name="Foo Bar", email=invalid_email)
+            Customer(
+                name="Foo Bar",
+                email=invalid_email,
+                password=Password.create("barbarbarbarbarbarbarbar"),
+            )
         assert str(exc.value) == "invalid_email"
 
     def test_should_create_customer_with_lowercase_email(self):
-        props = CreateCustomerProps(name="Foo Bar", email="Foo@Example.COM")
+        props = CreateCustomerProps(
+            name="Foo Bar",
+            email="Foo@Example.COM",
+            password="barbarbarbarbarbarbarbar",
+        )
         customer = Customer.create(props)
         assert customer.name == "Foo Bar"
         assert customer.email == "foo@example.com"
+        assert customer.password.hash.startswith("$argon2id$")
         assert isinstance(customer.created_at, datetime)
         assert isinstance(customer.updated_at, datetime)
 
@@ -36,6 +46,7 @@ class TestCustomer:
             id=str(uuid4()),
             name="Foo Bar",
             email="foo@example.com",
+            password_hash="barbarbarbarbarbarbarbar",
             created_at=datetime(2023, 1, 1, 10, 0, 0),
             updated_at=datetime(2023, 1, 1, 12, 0, 0),
         )
@@ -45,5 +56,6 @@ class TestCustomer:
         assert str(customer.id) == raw.id
         assert customer.name == raw.name
         assert customer.email == raw.email
+        assert customer.password.hash == raw.password_hash
         assert customer.created_at == raw.created_at
         assert customer.updated_at == raw.updated_at

@@ -1,32 +1,8 @@
--- Types
-CREATE TYPE permission AS ENUM (
-    'customers:create',
-    'customers:read',
-    'customers:update',
-    'customers:delete',
-    'favorites:create',
-    'favorites:read',
-    'favorites:update',
-    'favorites:delete'
-);
-
--- Tables
-CREATE TABLE IF NOT EXISTS users (
-    id UUID PRIMARY KEY,
-    slug VARCHAR(255) NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    permissions permission[] NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL,
-    updated_at TIMESTAMPTZ NOT NULL,
-    CONSTRAINT "uq_users_slug" UNIQUE (slug)
-);
-CREATE INDEX IF NOT EXISTS "idx_users_permissions_gin"
-    ON users USING GIN (permissions);
-
 CREATE TABLE IF NOT EXISTS customers (
     id UUID PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
     created_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ NOT NULL,
     CONSTRAINT "uq_customers_email" UNIQUE (email)

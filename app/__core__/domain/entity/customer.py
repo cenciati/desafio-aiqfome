@@ -7,8 +7,10 @@ from typing import List, Optional
 
 from app.__core__.domain.entity.base_domain_object import BaseDomainObject
 from app.__core__.domain.exception.exception import ValidationError
-from app.infra.postgres.orm.customer_favorite_product_orm import \
-    CustomerFavoriteProductORM
+from app.__core__.domain.value_object.password import Password
+from app.infra.postgres.orm.customer_favorite_product_orm import (
+    CustomerFavoriteProductORM,
+)
 from app.infra.postgres.orm.customer_orm import CustomerORM
 
 EMAIL_REGEX = re.compile(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
@@ -18,6 +20,7 @@ EMAIL_REGEX = re.compile(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
 class CreateCustomerProps:
     name: str
     email: str
+    password: str
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -30,6 +33,7 @@ class UpdateCustomerProps:
 class Customer(BaseDomainObject):
     name: str = field(compare=False)
     email: str = field(compare=False)
+    password: Password = field(compare=False, repr=False)
     favorite_products_ids: List[int] = field(default_factory=list, compare=False)
     created_at: datetime = field(default_factory=datetime.now, compare=False)
     updated_at: datetime = field(default_factory=datetime.now, compare=False)
@@ -43,6 +47,7 @@ class Customer(BaseDomainObject):
         return cls(
             name=props.name,
             email=props.email.lower(),
+            password=Password.create(props.password),
         )
 
     @classmethod
@@ -51,6 +56,7 @@ class Customer(BaseDomainObject):
             id=raw_customer.id,
             name=raw_customer.name,
             email=raw_customer.email,
+            password=Password(hash=raw_customer.password_hash),
             favorite_products_ids=[
                 fav_product.product_id for fav_product in raw_customer.favorite_products
             ],
@@ -63,6 +69,7 @@ class Customer(BaseDomainObject):
             id=self.id,
             name=self.name,
             email=self.email,
+            password_hash=self.password.hash,
             favorite_products=[
                 CustomerFavoriteProductORM(
                     product_id=product_id,

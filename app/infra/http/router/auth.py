@@ -11,11 +11,8 @@ from app.__core__.application.use_case.sign_up_use_case import (ISignUpUseCase,
 from app.__core__.domain.exception.exception import (AuthenticationError,
                                                      ValidationError)
 from app.infra.dependency import get_sign_in_use_case, get_sign_up_use_case
-from app.infra.security import validate_api_key
 
-router = APIRouter(
-    dependencies=[Depends(validate_api_key)],
-)
+router = APIRouter()
 settings = get_settings()
 
 
@@ -62,7 +59,7 @@ async def sign_up(
 
     except (AuthenticationError, ValidationError) as exc:
         match str(exc):
-            case "username_already_exists":
+            case "email_already_exists":
                 raise HTTPException(status_code=409, detail=str(exc))
             case _:
                 raise HTTPException(status_code=422, detail=str(exc))

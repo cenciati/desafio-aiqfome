@@ -1,24 +1,21 @@
 from abc import abstractmethod
 from dataclasses import dataclass
-from typing import List
 
-from app.__core__.domain.entity.user import User
+from app.__core__.domain.entity.customer import Customer
 from app.__core__.domain.exception.exception import ValidationError
-from app.__core__.domain.repository.repository import IUserRepository
-from app.__core__.domain.value_object.permission import Permission
+from app.__core__.domain.repository.repository import ICustomerRepository
 
 
 @dataclass(slots=True, frozen=True, kw_only=True)
 class SignUpInput:
-    username: str
+    name: str
+    email: str
     password: str
-    permissions: List[Permission]
 
 
 @dataclass(slots=True, frozen=True, kw_only=True)
 class SignUpOutput:
     id: str
-    username: str
 
 
 class ISignUpUseCase:
@@ -27,14 +24,17 @@ class ISignUpUseCase:
 
 
 class SignUpUseCase(ISignUpUseCase):
-    def __init__(self, user_repository: IUserRepository):
-        self.user_repository = user_repository
+    def __init__(self, customer_repository: ICustomerRepository):
+        self.customer_repository = customer_repository
 
     async def execute(self, input_dto: SignUpInput) -> SignUpOutput:
-        if await self.user_repository.fetch_one_by_slug(input_dto.username.lower()):
-            raise ValidationError("username_already_exists")
+        # Criando a entidade primeiro, pois se os dados forem inválidos,
+        # nem chegamos a estressar o banco
+        customer = Customer.create(input_dto)
 
-        user = User.create(input_dto)
-        await self.user_repository.insert_one(user)
+        if await self.customer_repository.fetch_one_by_email(customer.email):
+            raise ValidationError("email_already_exists")
 
-        return SignUpOutput(id=user.str_id, username=user.slug)
+        await self.customer_repository.insert_one(customer)
+
+        return SignUpOutput(id=customer.str_id)

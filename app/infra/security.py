@@ -1,19 +1,18 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Annotated, Callable, Optional
+from typing import TYPE_CHECKING, Annotated, Optional
 
 from fastapi import Cookie, Depends, HTTPException
 from fastapi.param_functions import Security
 from fastapi.security import APIKeyHeader
 
 from app.__core__.application.settings import get_settings
-from app.__core__.domain.entity.user import User
-from app.__core__.domain.repository.repository import IUserRepository
-from app.infra.dependency import get_jwt_service, get_user_repository
+from app.__core__.domain.entity.customer import Customer
+from app.infra.dependency import get_customer_repository, get_jwt_service
 
 if TYPE_CHECKING:
     from app.__core__.application.gateways.jwt_service import IJWTService
-    from app.__core__.domain.value_object.permission import Permission
+    from app.__core__.domain.repository.repository import ICustomerRepository
 
 
 settings = get_settings()
@@ -21,7 +20,7 @@ settings = get_settings()
 api_key_header = APIKeyHeader(name="x-aiqfome-api-key", auto_error=False)
 
 
-def validate_api_key(api_key: Optional[str] = Security(api_key_header)) -> None:
+def require_api_key(api_key: Optional[str] = Security(api_key_header)) -> None:
     if api_key is None:
         raise HTTPException(
             status_code=401,
@@ -35,28 +34,19 @@ def validate_api_key(api_key: Optional[str] = Security(api_key_header)) -> None:
         )
 
 
-async def get_current_user(
+async def get_current_customer_by_token(
     access_token: Annotated[Optional[str], Cookie()] = None,
     jwt_service: IJWTService = Depends(get_jwt_service),
-    user_repository: IUserRepository = Depends(get_user_repository),
-) -> User:
+    customer_repository: ICustomerRepository = Depends(get_customer_repository),
+) -> Customer:
     if access_token is None:
         raise HTTPException(status_code=401, detail="missing_token")
 
     token = jwt_service.verify_token(access_token)
-    user_id = token["sub"]
+    customer_id = token["sub"]
 
-    user = await user_repository.fetch_one(user_id)
-    if user is None:
+    customer = await customer_repository.fetch_one(customer_id)
+    if customer is None:
         raise HTTPException(status_code=401, detail="invalid_token")
 
-    return user
-
-
-def require_permission(required_permission: Permission) -> Callable[[User], User]:
-    def wrapper(current_user: User = Depends(get_current_user)) -> User:
-        if not current_user.has_permission(required_permission):
-            raise HTTPException(status_code=403, detail="permission_denied")
-        return current_user
-
-    return wrapper
+    return customer

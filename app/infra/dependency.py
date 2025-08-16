@@ -6,11 +6,7 @@ from fastapi import Depends
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.__core__.application.gateways.jwt_service import IJWTService
-from app.__core__.application.gateways.product_catalog import IProductCatalog
 from app.__core__.application.settings import get_settings
-from app.__core__.application.use_case.create_customer_use_case import \
-    CreateCustomerUseCase
 from app.__core__.application.use_case.delete_customer_use_case import \
     DeleteCustomerUseCase
 from app.__core__.application.use_case.fetch_customer_use_case import \
@@ -27,12 +23,11 @@ from app.infra.jwt.jwt_service import JWTService
 from app.infra.postgres.database import AsyncSessionFactory
 from app.infra.postgres.repository.customer_repository import \
     PostgresCustomerRepository
-from app.infra.postgres.repository.user_repository import \
-    PostgresUserRepository
 
 if TYPE_CHECKING:
-    from app.__core__.application.use_case.create_customer_use_case import \
-        ICreateCustomerUseCase
+    from app.__core__.application.gateways.jwt_service import IJWTService
+    from app.__core__.application.gateways.product_catalog import \
+        IProductCatalog
     from app.__core__.application.use_case.delete_customer_use_case import \
         IDeleteCustomerUseCase
     from app.__core__.application.use_case.fetch_customer_use_case import \
@@ -45,8 +40,7 @@ if TYPE_CHECKING:
         ISignUpUseCase
     from app.__core__.application.use_case.update_customer_use_case import \
         IUpdateCustomerUseCase
-    from app.__core__.domain.repository.repository import (ICustomerRepository,
-                                                           IUserRepository)
+    from app.__core__.domain.repository.repository import ICustomerRepository
 
 
 settings = get_settings()
@@ -75,35 +69,9 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
-# Users
+# Customers
 def get_jwt_service() -> IJWTService:
     return JWTService()
-
-
-def get_user_repository(
-    session: AsyncSession = Depends(get_async_session),
-) -> IUserRepository:
-    return PostgresUserRepository(session)
-
-
-def get_sign_in_use_case(
-    user_repository: IUserRepository = Depends(get_user_repository),
-    jwt_service: IJWTService = Depends(get_jwt_service),
-) -> ISignInUseCase:
-    return SignInUseCase(user_repository, jwt_service)
-
-
-def get_sign_up_use_case(
-    user_repository: IUserRepository = Depends(get_user_repository),
-) -> ISignUpUseCase:
-    return SignUpUseCase(user_repository)
-
-
-# Customers
-def get_fake_store_product_catalog(
-    client: AsyncClient = Depends(get_httpx_client),
-) -> IProductCatalog:
-    return FakeStoreProductCatalog(client)
 
 
 def get_customer_repository(
@@ -112,10 +80,23 @@ def get_customer_repository(
     return PostgresCustomerRepository(session)
 
 
-def get_create_customer_use_case(
+def get_sign_in_use_case(
     customer_repository: ICustomerRepository = Depends(get_customer_repository),
-) -> ICreateCustomerUseCase:
-    return CreateCustomerUseCase(customer_repository)
+    jwt_service: IJWTService = Depends(get_jwt_service),
+) -> ISignInUseCase:
+    return SignInUseCase(customer_repository, jwt_service)
+
+
+def get_sign_up_use_case(
+    customer_repository: ICustomerRepository = Depends(get_customer_repository),
+) -> ISignUpUseCase:
+    return SignUpUseCase(customer_repository)
+
+
+def get_fake_store_product_catalog(
+    client: AsyncClient = Depends(get_httpx_client),
+) -> IProductCatalog:
+    return FakeStoreProductCatalog(client)
 
 
 def get_list_customers_use_case(

@@ -12,6 +12,7 @@ class CustomerORM(SQLModel, table=True):
     id: UUID = Field(primary_key=True, index=True)
     name: str
     email: str = Field(unique=True, index=True)
+    password_hash: str
     created_at: datetime
     updated_at: datetime
 
