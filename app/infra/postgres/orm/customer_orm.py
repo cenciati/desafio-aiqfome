@@ -17,9 +17,14 @@ class CustomerORM(SQLModel, table=True):
     updated_at: datetime
 
     favorite_products: Mapped[List["CustomerFavoriteProductORM"]] = Relationship(
-        back_populates="customer"
+        back_populates="customer",
+        cascade_delete=True,
+        sa_relationship_kwargs={
+            "passive_deletes": True,
+        },
     )
 
 
-from app.infra.postgres.orm.customer_favorite_product_orm import \
-    CustomerFavoriteProductORM  # noqa: E402
+from app.infra.postgres.orm.customer_favorite_product_orm import (  # noqa: E402
+    CustomerFavoriteProductORM,
+)

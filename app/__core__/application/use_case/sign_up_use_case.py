@@ -1,19 +1,19 @@
 from abc import abstractmethod
-from dataclasses import dataclass
 
 from app.__core__.domain.entity.customer import Customer
 from app.__core__.domain.exception.exception import ValidationError
 from app.__core__.domain.repository.repository import ICustomerRepository
+from app.__core__.domain.strict_record import strict_record
 
 
-@dataclass(slots=True, frozen=True, kw_only=True)
+@strict_record
 class SignUpInput:
     name: str
     email: str
     password: str
 
 
-@dataclass(slots=True, frozen=True, kw_only=True)
+@strict_record
 class SignUpOutput:
     id: str
 

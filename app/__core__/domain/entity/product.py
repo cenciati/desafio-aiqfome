@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from decimal import Decimal
 from typing import Optional
 
 from app.__core__.domain.exception.exception import ValidationError
@@ -17,7 +16,7 @@ class Review:
 class CreateProductProps:
     title: str
     image_url: str
-    price: Decimal
+    price: int | float
     review: Optional[Review] = None
 
 
@@ -45,6 +44,11 @@ class Product:
             id=raw_product["id"],
             title=raw_product["title"],
             image_url=raw_product["image"],
-            price=raw_product["price"],
-            review=None,
+            price=float(raw_product["price"]),
+            review=Review(
+                rate=float(raw_product["rating"]["rate"]),
+                count=int(raw_product["rating"]["count"]),
+            )
+            if raw_product["rating"]
+            else None,
         )

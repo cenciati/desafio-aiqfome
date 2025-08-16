@@ -1,25 +1,25 @@
 import asyncio
 from abc import abstractmethod
-from dataclasses import dataclass
 from math import ceil
 from typing import List
 
 from app.__core__.application.gateways.product_catalog import IProductCatalog
-from app.__core__.application.use_case.fetch_customer_use_case import \
-    FetchCustomerOutput
+from app.__core__.application.use_case.fetch_customer_use_case import (
+    FetchCustomerOutput,
+)
 from app.__core__.domain.entity.customer import Customer
-from app.__core__.domain.repository.pagination import (PaginationInput,
-                                                       PaginationOutput)
+from app.__core__.domain.repository.pagination import PaginationInput, PaginationOutput
 from app.__core__.domain.repository.repository import ICustomerRepository
+from app.__core__.domain.strict_record import strict_record
 
 
-@dataclass(slots=True, frozen=True, kw_only=True)
+@strict_record
 class ListCustomersInput:
     page: int
     per_page: int
 
 
-@dataclass(slots=True, frozen=True, kw_only=True)
+@strict_record
 class ListCustomersOutput:
     data: List[FetchCustomerOutput]
     pagination: PaginationOutput

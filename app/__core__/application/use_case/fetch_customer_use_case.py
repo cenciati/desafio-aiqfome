@@ -1,19 +1,19 @@
 from abc import abstractmethod
-from dataclasses import dataclass
 from typing import List
 
 from app.__core__.application.gateways.product_catalog import IProductCatalog
 from app.__core__.domain.entity.product import Product
 from app.__core__.domain.exception.exception import ValidationError
 from app.__core__.domain.repository.repository import ICustomerRepository
+from app.__core__.domain.strict_record import strict_record
 
 
-@dataclass(slots=True, frozen=True, kw_only=True)
+@strict_record
 class FetchCustomerInput:
     customer_id: str
 
 
-@dataclass(slots=True, frozen=True, kw_only=True)
+@strict_record
 class FetchCustomerOutput:
     id: str
     name: str

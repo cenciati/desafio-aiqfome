@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.__core__.application.logger import logger
 from app.__core__.application.settings import get_settings
@@ -37,16 +37,13 @@ settings = get_settings()
 
 @router.get("", response_model=ListCustomersOutput, status_code=200)
 async def list_customers(
-    page: int = 1,
-    per_page: int = 20,
+    page: int = Query(1, ge=1),
+    per_page: int = Query(20, ge=1, le=settings.PAGINATION_PER_PAGE_LIMIT),
     _=Depends(require_api_key),
     list_customers_use_case: IListCustomersUseCase = Depends(
         get_list_customers_use_case
     ),
 ):
-    if per_page > settings.PAGINATION_PER_PAGE_LIMIT:
-        raise HTTPException(status_code=422, detail="per_page_limit_exceeded")
-
     try:
         input_dto = ListCustomersInput(page=page, per_page=per_page)
         return await list_customers_use_case.execute(input_dto)

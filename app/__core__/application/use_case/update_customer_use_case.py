@@ -1,19 +1,19 @@
 from abc import abstractmethod
-from dataclasses import dataclass
 from typing import Optional
 
 from app.__core__.domain.entity.customer import UpdateCustomerProps
 from app.__core__.domain.exception.exception import ValidationError
 from app.__core__.domain.repository.repository import ICustomerRepository
+from app.__core__.domain.strict_record import strict_record
 
 
-@dataclass(slots=True, frozen=True, kw_only=True)
+@strict_record
 class UpdateCustomerRequestInput:
     name: Optional[str] = None
     email: Optional[str] = None
 
 
-@dataclass(slots=True, frozen=True, kw_only=True)
+@strict_record
 class UpdateCustomerInput:
     customer_id: str
     name: Optional[str] = None

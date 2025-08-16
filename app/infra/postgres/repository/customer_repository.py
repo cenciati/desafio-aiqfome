@@ -15,7 +15,7 @@ class PostgresCustomerRepository(ICustomerRepository):
         self.session = session
 
     async def insert_one(self, entity: Customer) -> None:
-        customer = CustomerORM.model_validate(entity.to_orm())
+        customer = entity.to_orm()
         self.session.add(customer)
         await self.session.commit()
 

@@ -10,7 +10,7 @@ from app.__core__.application.logger import logger
 from app.__core__.application.settings import get_settings
 from app.infra.dependency import close_httpx_client
 from app.infra.http.middleware.correlation_id import CorrelationIdMiddleware
-from app.infra.http.router import auth, customers
+from app.infra.http.router import auth, customers, favorites
 from app.infra.postgres.database import close_db, init_db
 
 settings = get_settings()
@@ -51,6 +51,11 @@ def bootstrap() -> FastAPI:
 
     app.include_router(auth.router, prefix="/auth", tags=["auth"])
     app.include_router(customers.router, prefix="/customers", tags=["customers"])
+    app.include_router(
+        favorites.router,
+        prefix="/customers/{customer_id}/favorites",
+        tags=["favorites"],
+    )
 
     @app.get("/health")
     async def health_check():

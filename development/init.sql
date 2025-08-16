@@ -15,9 +15,7 @@ CREATE TABLE IF NOT EXISTS products_cache (
     price DECIMAL(10, 2) NOT NULL,
     review_rate DECIMAL(10, 2) NOT NULL,
     review_count INT NOT NULL,
-    fetched_at TIMESTAMPTZ NOT NULL,
-    soft_ttl INTERVAL NOT NULL DEFAULT '5 minutes',
-    hard_ttl INTERVAL NOT NULL DEFAULT '30 minutes'
+    fetched_at TIMESTAMPTZ NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS customer_favorite_products (

@@ -1,10 +1,10 @@
 from abc import abstractmethod
-from dataclasses import dataclass
 
 from app.__core__.domain.repository.repository import ICustomerRepository
+from app.__core__.domain.strict_record import strict_record
 
 
-@dataclass(slots=True, frozen=True, kw_only=True)
+@strict_record
 class DeleteCustomerInput:
     customer_id: str
 

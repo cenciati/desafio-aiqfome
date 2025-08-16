@@ -1,13 +1,13 @@
-from dataclasses import dataclass
+from app.__core__.domain.strict_record import strict_record
 
 
-@dataclass(slots=True, frozen=True, kw_only=True)
+@strict_record
 class PaginationInput:
     page: int
     per_page: int
 
 
-@dataclass(slots=True, frozen=True, kw_only=True)
+@strict_record
 class PaginationOutput:
     page: int
     per_page: int

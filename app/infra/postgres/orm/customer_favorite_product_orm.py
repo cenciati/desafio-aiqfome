@@ -10,11 +10,15 @@ class CustomerFavoriteProductORM(SQLModel, table=True):
     __tablename__ = "customer_favorite_products"
 
     customer_id: UUID = Field(foreign_key="customers.id", primary_key=True)
-    product_id: UUID = Field(primary_key=True)
+    product_id: int = Field(primary_key=True)
     favorited_at: datetime
 
     customer: Mapped[Optional["CustomerORM"]] = Relationship(
-        back_populates="favorite_products"
+        back_populates="favorite_products",
+        sa_relationship_kwargs={
+            "foreign_keys": "CustomerFavoriteProductORM.customer_id",
+            "passive_deletes": True,
+        },
     )
 
 
