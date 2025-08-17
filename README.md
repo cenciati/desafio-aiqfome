@@ -99,6 +99,59 @@ $ curl --location 'http://localhost:8080/customers/78293de4-36e6-4507-9eda-b3749
 
 ![documentation](./docs/images/api_docs.png)
 
+# Estrutura do projeto
+
+- A estrutura de pastas do projeto reflete as camadas de responsabilidade que implementei. Fiz usando um mix de conceitos presentes tanto na `Clean Architecture`, quanto no `DDD`, em alguns momentos sendo mais "purista" e em outros menos, de forma que eu conseguisse balancear a flexibilidade e complexidade do software, além de conseguir manter a legibilidade e a manutenibilidade.
+
+```bash
+desafio-aiqfome/
+├── app/
+│   ├── __core__/                  # O núcleo da aplicação, onde está tudo referente às regras de negócio
+│   │   ├── application/           # Camada de aplicação, onde estão as "engrenagens" que colocam em prática as regras de negócio
+│   │   │   ├── gateways/          # Interfaces para serviços externos (JWT, Product Catalog)
+│   │   │   ├── presenters/        # Camada de apresentação, onde estão os formatadores das respostas da API
+│   │   │   └── use_case/          # Casos de uso da aplicação (Sign In, Sign Up, Favorite product, etc.)
+│   │   ├── domain/                # Camada de domínio (Entidades, Value Objects, etc.)
+│   │   │   ├── entity/            # Entidades de negócio (Customer, Product)
+│   │   │   ├── exception/         # Exceções customizadas do domínio
+│   │   │   ├── repository/        # Interfaces dos repositórios
+│   │   │   └── value_object/      # Objetos de valor (Password, etc.)
+│   │   ├── settings.py            # Configurações da aplicação
+│   │   ├── logger.py              # Configuração do logger
+│   │   ├── task_manager.py        # Gerenciador de tarefas assíncronas
+│   │   └── retry_with_backoff.py  # Utilitário para retry com backoff (Usei para o Product Catalog)
+│   ├── infra/                     # Camada de infraestrutura (Implementações concretas)
+│   │   ├── dependency.py          # Injeção de dependências
+│   │   ├── fakestore/             # Integração com API externa do Fake Store
+│   │   ├── http/                  # Camada HTTP (FastAPI)
+│   │   │   ├── middleware/        # Middlewares (Fiz o Correlation ID para facilitar na identificação das requests)
+│   │   │   └── router/            # Rotas da API (Auth, Customers, Favorites)
+│   │   ├── jwt/                   # Implementação do serviço JWT
+│   │   ├── postgres/              # Camada de persistência (PostgreSQL)
+│   │   │   ├── orm/               # Modelos ORM que espelham as entidades, mas estão "sujos" com framework (SQLModel)
+│   │   │   └── repository/        # Implementações dos repositórios
+│   │   └── security.py            # Configurações de segurança que são usadas nos Controllers
+│   ├── __main__.py                # Bootstrap da aplicação
+│   └── __init__.py
+├── development/                   # Arquivos para serem usados no desenvolvimento
+│   ├── Dockerfile.dev             # Dockerfile para rodar o projeto localmente
+│   ├── init.sql                   # Script de inicialização do banco que roda no build do PostgreSQL
+│   └── requirements-dev.txt       # Dependências de desenvolvimento
+├── docs/                          # Documentação do projeto
+│   └── images/                    # Imagens da documentação
+├── tests/                         # Testes automatizados
+│   ├── integration/               # Testes de integração
+│   └── unit/                      # Testes de unidade
+├── .dockerignore                  # Arquivo de configuração do Docker para ignorar arquivos e pastas
+├── .env.example                   # Exemplo de arquivo de variáveis de ambiente
+├── docker-compose.yaml            # Configuração do Docker Compose para rodar o projeto localmente
+├── Dockerfile                     # Dockerfile de produção
+├── poetry.lock                    # Lock file do Poetry
+├── pyproject.toml                 # Configuração do Poetry
+├── requirements.txt               # Dependências de produção
+└── README.md                      # Documentação
+```
+
 # Como executar os testes e os linters
 
 ```bash
