@@ -37,7 +37,7 @@ $ poetry run task start
 
 ## 1. Crie um cliente
 
-- Você receberá o `id` do cliente, que será usado mais para frente em outras consultas, então pode guardá-lo em um bloco de notas.
+- Ao executar a requisição abaixo, você receberá como resposta o `id` do cliente criado, ele será usado mais para frente em outras consultas, então pode guardá-lo em um bloco de notas.
 - Uma nota técnica, é que eu usei o algoritmo `argon2` ao invés do `bcrypt` para criptografar a senha, pois em tempos de GPU e programação distribuída, algoritmos `memory-hard` se tornam uma melhor opção visando maior segurança
 
 ```bash
@@ -75,9 +75,9 @@ $ curl --location 'http://localhost:8080/customers' \
 
 ## 4. Favorite o seu primeiro produto!!
 
-- Escolha um produto e favorite-o! Caso ele não exista, fique tranquilo(a) que a API irá te informar. Além disso, também é necessário atualizar o cURL com o seu token de acesso.
-- Aqui vai mais uma nota técnica importante, uma vez que todo produto precisa ser validado na API externa, ao **consultar ou favoritar** um produto, a aplicação automaticamente e em paralelo, atualiza a tabela de cache `products_cache` com as informações frescas dele para que da próxima vez que o cliente for consultar ou favoritar o mesmo produto, a resposta não dependa da API externa. Obviamente, esses dados não ficarão frescos para sempre, por conta disso foi implementado uma estratégia de `stale-while-revalidate`, onde existe tanto um `soft_ttl` quanto um `hard_ttl` para controlar o tempo de vida dos dados no cache
-- Para ilustrar melhor essa questão do sistema de cache, também fiz um diagrama indicando o passo a passo do fluxo
+- Escolha um produto e favorite-o! Caso ele não exista, fique tranquilo(a) que a API irá te informar. Lembrando, que todos os cURLs de exemplo estão com um token de exemplo, portanto lembre-se de sempre utilizar o token fornecido pelo endpoint de sign in.
+- E aqui vai mais uma nota técnica importante, uma vez que todo produto precisa ser validado na API externa, ao cliente **consultar ou favoritar** um produto, a aplicação automaticamente e em "paralelo", atualiza a tabela de cache `products_cache` com as informações **frescas** dele para que da próxima vez que qualquer cliente consultar ou favoritar o mesmo produto, a resposta não dependa da API externa. Obviamente, esses dados não ficarão frescos para sempre, por conta disso foi implementado uma estratégia de `stale-while-revalidate`, onde existe tanto um `soft_ttl` quanto um `hard_ttl` para controlar o tempo de vida dos dados no cache
+- Para ilustrar melhor essa questão do sistema de cache, fiz um diagrama usando o `draw.io` indicando o passo a passo do fluxo
 
 ![cache_diagram](./docs/images/products_cache_flow.png)
 
@@ -93,9 +93,44 @@ $ curl --location 'http://localhost:8080/customers/78293de4-36e6-4507-9eda-b3749
     --header 'Cookie: access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3ODI5M2RlNC0zNmU2LTQ1MDctOWVkYS1iMzc0OTc0ZjBmMDgiLCJleHAiOjE3NTU1NjUzMTd9.kize7KcOFQ7SFjVdBOfezde5jwHC_dOVa6oJO9QhGaI'
 ```
 
+- Abaixo temos um exemplo de resposta desse que talvez seja o endpoint mais importante de todo o sistema. Perceba que ela vem paginada, paginação essa que pode ser controlada nos query parameters `page` e `per_page`
+
+```json
+{
+  "data": [
+    {
+      "id": 14,
+      "title": "Samsung 49-Inch CHG90 144Hz Curved Gaming Monitor (LC49HG90DMNXZA) – Super Ultrawide Screen QLED ",
+      "image_url": "https://fakestoreapi.com/img/81Zt42ioCgL._AC_SX679_t.png",
+      "price": 999.99,
+      "review": {
+        "rate": 2.2,
+        "count": 140
+      }
+    },
+    {
+      "id": 13,
+      "title": "Acer SB220Q bi 21.5 inches Full HD (1920 x 1080) IPS Ultra-Thin",
+      "image_url": "https://fakestoreapi.com/img/81QpkIctqPL._AC_SX679_t.png",
+      "price": 599.0,
+      "review": {
+        "rate": 2.9,
+        "count": 250
+      }
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "per_page": 20,
+    "total_pages": 1,
+    "total_items": 2
+  }
+}
+```
+
 # Explore os outros endpoints
 
-- Para uma análise mais detalhada dos endpoints e seus respectivos contratos, é possível consultar a documentação completa da API. Ela foi gerada automaticamente com o `Swagger` nativo do `FastAPI` e está disponível em `http://localhost:8080/docs` ou no endereço deployado
+- Para uma análise mais detalhada dos endpoints e seus respectivos contratos, é possível consultar a documentação completa da API. Ela foi gerada automaticamente com o `Swagger` nativo do `FastAPI` e está disponível em `http://localhost:8080/docs`
 
 ![documentation](./docs/images/api_docs.png)
 
@@ -150,6 +185,43 @@ desafio-aiqfome/
 ├── pyproject.toml                 # Configuração do Poetry
 ├── requirements.txt               # Dependências de produção
 └── README.md                      # Documentação
+```
+
+# Tabelas do banco de dados
+
+- A tabela de `customers` conta com uma constraint em e-mail, perceba que eu **não** apliquei o `LOWER(email)`, pois isso é responsabilidade da entidade de `Customer`, de converter e-mails para lowercase, de forma que o índice criado com essa constraint sempre seja usado, agilizando consultas pelo campo e-mail. Analogamente, nenhuma tabela possui valores default, pois também é responsabilidade de cada entidade de negócio controlar isso
+- A tabela de `products_cache` é a tabela de cache para os produtos, ela é atualizada automaticamente quando um cliente consulta ou favorita um produto. Adicionei o campo `fetched_at` que não aparece nas respostas da API, mas é usado internamente para controlar o tempo de vida dos dados no cache
+- Por fim, a tabela `customer_favorite_products` é onde armazeno os produtos favoritos de cada cliente, ela possui uma PRIMARY KEY composta por `customer_id` e `product_id`, fazendo com que não seja possível favoritar o mesmo produto mais de uma vez por cliente
+
+```sql
+CREATE TABLE IF NOT EXISTS customers (
+    id UUID PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL,
+    CONSTRAINT "uq_customers_email" UNIQUE (email)
+);
+
+CREATE TABLE IF NOT EXISTS products_cache (
+    id BIGINT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    image_url TEXT NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    review_rate DECIMAL(10, 2),
+    review_count INT,
+    fetched_at TIMESTAMPTZ NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS customer_favorite_products (
+    customer_id UUID NOT NULL,
+    product_id BIGINT NOT NULL,
+    favorited_at TIMESTAMPTZ NOT NULL,
+    PRIMARY KEY (customer_id, product_id),
+    CONSTRAINT "fk_customerfavoriteproducts_customer"
+        FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE
+);
 ```
 
 # Como executar os testes e os linters
