@@ -2,72 +2,64 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, AsyncGenerator, Optional
 
-from fastapi import Depends
+from fastapi import Depends, Request
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.__core__.application.settings import get_settings
-from app.__core__.application.use_case.delete_customer_use_case import (
-    DeleteCustomerUseCase,
-)
-from app.__core__.application.use_case.favorite_product_use_case import (
-    FavoriteProductUseCase,
-)
-from app.__core__.application.use_case.fetch_customer_use_case import (
-    FetchCustomerUseCase,
-)
-from app.__core__.application.use_case.list_customers_use_case import (
-    ListCustomersUseCase,
-)
+from app.__core__.application.task_manager import TaskManager
+from app.__core__.application.use_case.delete_customer_use_case import \
+    DeleteCustomerUseCase
+from app.__core__.application.use_case.favorite_product_use_case import \
+    FavoriteProductUseCase
+from app.__core__.application.use_case.fetch_customer_use_case import \
+    FetchCustomerUseCase
+from app.__core__.application.use_case.list_customer_favorite_products_use_case import \
+    ListCustomerFavoriteProductsUseCase
+from app.__core__.application.use_case.list_customers_use_case import \
+    ListCustomersUseCase
 from app.__core__.application.use_case.sign_in_use_case import SignInUseCase
 from app.__core__.application.use_case.sign_up_use_case import SignUpUseCase
-from app.__core__.application.use_case.unfavorite_product_use_case import (
-    UnfavoriteProductUseCase,
-)
-from app.__core__.application.use_case.update_customer_use_case import (
-    UpdateCustomerUseCase,
-)
-from app.infra.fakestore.fakestore_product_catalog import FakeStoreProductCatalog
+from app.__core__.application.use_case.unfavorite_product_use_case import \
+    UnfavoriteProductUseCase
+from app.__core__.application.use_case.update_customer_use_case import \
+    UpdateCustomerUseCase
+from app.infra.fakestore.fakestore_product_catalog import \
+    FakeStoreProductCatalog
 from app.infra.jwt.jwt_service import JWTService
 from app.infra.postgres.database import AsyncSessionFactory
-from app.infra.postgres.repository.customer_favorite_product_repository import (
-    PostgresCustomerFavoriteProductRepository,
-)
-from app.infra.postgres.repository.customer_repository import PostgresCustomerRepository
-from app.__core__.application.use_case.list_customer_favorite_products_use_case import (
-    ListCustomerFavoriteProductsUseCase,
-)
+from app.infra.postgres.repository.customer_favorite_product_repository import \
+    PostgresCustomerFavoriteProductRepository
+from app.infra.postgres.repository.customer_repository import \
+    PostgresCustomerRepository
+from app.infra.postgres.repository.product_cache_repository import \
+    PostgresProductCacheRepository
 
 if TYPE_CHECKING:
     from app.__core__.application.gateways.jwt_service import IJWTService
-    from app.__core__.application.gateways.product_catalog import IProductCatalog
-    from app.__core__.application.use_case.delete_customer_use_case import (
-        IDeleteCustomerUseCase,
-    )
-    from app.__core__.application.use_case.fetch_customer_use_case import (
-        IFetchCustomerUseCase,
-    )
-    from app.__core__.application.use_case.list_customers_use_case import (
-        IListCustomersUseCase,
-    )
-    from app.__core__.application.use_case.sign_in_use_case import ISignInUseCase
-    from app.__core__.application.use_case.sign_up_use_case import ISignUpUseCase
-    from app.__core__.application.use_case.update_customer_use_case import (
-        IUpdateCustomerUseCase,
-    )
-    from app.__core__.application.use_case.favorite_product_use_case import (
-        IFavoriteProductUseCase,
-    )
-    from app.__core__.application.use_case.list_customer_favorite_products_use_case import (
-        IListCustomerFavoriteProductsUseCase,
-    )
-    from app.__core__.application.use_case.unfavorite_product_use_case import (
-        IUnfavoriteProductUseCase,
-    )
+    from app.__core__.application.gateways.product_catalog import \
+        IProductCatalog
+    from app.__core__.application.use_case.delete_customer_use_case import \
+        IDeleteCustomerUseCase
+    from app.__core__.application.use_case.favorite_product_use_case import \
+        IFavoriteProductUseCase
+    from app.__core__.application.use_case.fetch_customer_use_case import \
+        IFetchCustomerUseCase
+    from app.__core__.application.use_case.list_customer_favorite_products_use_case import \
+        IListCustomerFavoriteProductsUseCase
+    from app.__core__.application.use_case.list_customers_use_case import \
+        IListCustomersUseCase
+    from app.__core__.application.use_case.sign_in_use_case import \
+        ISignInUseCase
+    from app.__core__.application.use_case.sign_up_use_case import \
+        ISignUpUseCase
+    from app.__core__.application.use_case.unfavorite_product_use_case import \
+        IUnfavoriteProductUseCase
+    from app.__core__.application.use_case.update_customer_use_case import \
+        IUpdateCustomerUseCase
     from app.__core__.domain.repository.repository import (
-        ICustomerFavoriteProductRepository,
-        ICustomerRepository,
-    )
+        ICustomerFavoriteProductRepository, ICustomerRepository,
+        IProductCacheRepository)
 
 
 settings = get_settings()
@@ -97,6 +89,10 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
 
 
 # Customers
+def get_task_manager(request: Request) -> TaskManager:
+    return request.app.state.task_manager
+
+
 def get_jwt_service() -> IJWTService:
     return JWTService()
 
@@ -128,16 +124,14 @@ def get_fake_store_product_catalog(
 
 def get_list_customers_use_case(
     customer_repository: ICustomerRepository = Depends(get_customer_repository),
-    product_catalog: IProductCatalog = Depends(get_fake_store_product_catalog),
 ) -> IListCustomersUseCase:
-    return ListCustomersUseCase(customer_repository, product_catalog)
+    return ListCustomersUseCase(customer_repository)
 
 
 def get_fetch_customer_use_case(
     customer_repository: ICustomerRepository = Depends(get_customer_repository),
-    product_catalog: IProductCatalog = Depends(get_fake_store_product_catalog),
 ) -> IFetchCustomerUseCase:
-    return FetchCustomerUseCase(customer_repository, product_catalog)
+    return FetchCustomerUseCase(customer_repository)
 
 
 def get_update_customer_use_case(
@@ -159,23 +153,43 @@ def get_customer_favorite_product_repository(
     return PostgresCustomerFavoriteProductRepository(session)
 
 
+def get_product_cache_repository(
+    session: AsyncSession = Depends(get_async_session),
+) -> IProductCacheRepository:
+    return PostgresProductCacheRepository(session)
+
+
 def get_favorite_product_use_case(
     customer_favorite_product_repository: ICustomerFavoriteProductRepository = Depends(
         get_customer_favorite_product_repository
     ),
+    product_cache_repository: IProductCacheRepository = Depends(
+        get_product_cache_repository
+    ),
     product_catalog: IProductCatalog = Depends(get_fake_store_product_catalog),
 ) -> IFavoriteProductUseCase:
-    return FavoriteProductUseCase(customer_favorite_product_repository, product_catalog)
+    return FavoriteProductUseCase(
+        customer_favorite_product_repository,
+        product_cache_repository,
+        product_catalog,
+    )
 
 
 def get_list_customer_favorite_products_use_case(
     customer_favorite_product_repository: ICustomerFavoriteProductRepository = Depends(
         get_customer_favorite_product_repository
     ),
+    product_cache_repository: IProductCacheRepository = Depends(
+        get_product_cache_repository
+    ),
     product_catalog: IProductCatalog = Depends(get_fake_store_product_catalog),
+    task_manager: TaskManager = Depends(get_task_manager),
 ) -> IListCustomerFavoriteProductsUseCase:
     return ListCustomerFavoriteProductsUseCase(
-        customer_favorite_product_repository, product_catalog
+        customer_favorite_product_repository,
+        product_cache_repository,
+        product_catalog,
+        task_manager,
     )
 
 

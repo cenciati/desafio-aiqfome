@@ -2,9 +2,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from uuid import UUID
 
-from app.infra.postgres.orm.customer_favorite_product_orm import (
-    CustomerFavoriteProductORM,
-)
+from app.infra.postgres.orm.customer_favorite_product_orm import \
+    CustomerFavoriteProductORM
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)

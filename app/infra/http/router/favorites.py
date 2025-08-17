@@ -3,27 +3,18 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from app.__core__.application.logger import logger
 from app.__core__.application.settings import get_settings
 from app.__core__.application.use_case.favorite_product_use_case import (
-    FavoriteProductInput,
-    IFavoriteProductUseCase,
-)
+    FavoriteProductInput, IFavoriteProductUseCase)
 from app.__core__.application.use_case.list_customer_favorite_products_use_case import (
-    IListCustomerFavoriteProductsUseCase,
-    ListCustomerFavoriteProductsInput,
-    ListCustomerFavoriteProductsOutput,
-)
+    IListCustomerFavoriteProductsUseCase, ListCustomerFavoriteProductsInput,
+    ListCustomerFavoriteProductsOutput)
 from app.__core__.application.use_case.unfavorite_product_use_case import (
-    IUnfavoriteProductUseCase,
-    UnfavoriteProductInput,
-)
+    IUnfavoriteProductUseCase, UnfavoriteProductInput)
 from app.__core__.domain.entity.customer import Customer
 from app.__core__.domain.exception.exception import ValidationError
-from app.infra.dependency import (
-    get_favorite_product_use_case,
-    get_list_customer_favorite_products_use_case,
-    get_unfavorite_product_use_case,
-)
+from app.infra.dependency import (get_favorite_product_use_case,
+                                  get_list_customer_favorite_products_use_case,
+                                  get_unfavorite_product_use_case)
 from app.infra.security import get_current_customer_by_token
-
 
 router = APIRouter()
 settings = get_settings()
@@ -54,8 +45,8 @@ async def favorite_product(
             case _:
                 raise HTTPException(status_code=400, detail=str(exc))
 
-    except Exception as exc:
-        logger.error("favorite_product_failed", exc_info=str(exc))
+    except Exception:
+        logger.exception("favorite_product_failed")
         raise HTTPException(status_code=500)
 
 
@@ -78,8 +69,8 @@ async def list_customer_favorite_products(
         )
         return await list_customer_favorite_products_use_case.execute(input_dto)
 
-    except Exception as exc:
-        logger.error("list_customer_favorite_products_failed", exc_info=str(exc))
+    except Exception:
+        logger.exception("list_customer_favorite_products_failed")
         raise HTTPException(status_code=500)
 
 
@@ -108,6 +99,6 @@ async def unfavorite_product(
             case _:
                 raise HTTPException(status_code=400, detail=str(exc))
 
-    except Exception as exc:
-        logger.error("unfavorite_product_failed", exc_info=str(exc))
+    except Exception:
+        logger.exception("unfavorite_product_failed")
         raise HTTPException(status_code=500)

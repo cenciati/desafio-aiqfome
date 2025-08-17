@@ -25,6 +25,5 @@ class CustomerORM(SQLModel, table=True):
     )
 
 
-from app.infra.postgres.orm.customer_favorite_product_orm import (  # noqa: E402
-    CustomerFavoriteProductORM,
-)
+from app.infra.postgres.orm.customer_favorite_product_orm import \
+    CustomerFavoriteProductORM  # noqa: E402

@@ -44,8 +44,8 @@ async def sign_in(
             case _:
                 raise HTTPException(status_code=400, detail=str(exc))
 
-    except Exception as exc:
-        logger.error("sign_in_failed", exc_info=str(exc))
+    except Exception:
+        logger.exception("sign_in_failed")
         raise HTTPException(status_code=500)
 
 
@@ -64,8 +64,8 @@ async def sign_up(
             case _:
                 raise HTTPException(status_code=422, detail=str(exc))
 
-    except Exception as exc:
-        logger.error("sign_up_failed", exc_info=str(exc))
+    except Exception:
+        logger.exception("sign_up_failed")
         raise HTTPException(status_code=500)
 
 
@@ -74,6 +74,6 @@ def sign_out(response: Response):
     try:
         response.delete_cookie(key="access_token")
 
-    except Exception as exc:
-        logger.error("sign_out_failed", exc_info=str(exc))
+    except Exception:
+        logger.exception("sign_out_failed")
         raise HTTPException(status_code=500)

@@ -1,4 +1,4 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
 from app.__core__.domain.repository.repository import ICustomerRepository
 from app.__core__.domain.strict_record import strict_record
@@ -9,7 +9,7 @@ class DeleteCustomerInput:
     customer_id: str
 
 
-class IDeleteCustomerUseCase:
+class IDeleteCustomerUseCase(ABC):
     @abstractmethod
     async def execute(self, input_dto: DeleteCustomerInput) -> None: ...
 

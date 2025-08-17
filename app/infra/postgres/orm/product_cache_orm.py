@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from decimal import Decimal
 
 from sqlmodel import Field, SQLModel
@@ -16,5 +16,3 @@ class ProductCacheORM(SQLModel, table=True):
     review_rate: Decimal
     review_count: int
     fetched_at: datetime
-    soft_ttl: timedelta
-    hard_ttl: timedelta

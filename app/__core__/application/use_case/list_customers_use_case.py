@@ -1,14 +1,13 @@
 import asyncio
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from math import ceil
 from typing import List
 
-from app.__core__.application.gateways.product_catalog import IProductCatalog
-from app.__core__.application.use_case.fetch_customer_use_case import (
-    FetchCustomerOutput,
-)
+from app.__core__.application.use_case.fetch_customer_use_case import \
+    FetchCustomerOutput
 from app.__core__.domain.entity.customer import Customer
-from app.__core__.domain.repository.pagination import PaginationInput, PaginationOutput
+from app.__core__.domain.repository.pagination import (PaginationInput,
+                                                       PaginationOutput)
 from app.__core__.domain.repository.repository import ICustomerRepository
 from app.__core__.domain.strict_record import strict_record
 
@@ -25,19 +24,14 @@ class ListCustomersOutput:
     pagination: PaginationOutput
 
 
-class IListCustomersUseCase:
+class IListCustomersUseCase(ABC):
     @abstractmethod
     async def execute(self, input_dto: ListCustomersInput) -> ListCustomersOutput: ...
 
 
 class ListCustomersUseCase(IListCustomersUseCase):
-    def __init__(
-        self,
-        customer_repository: ICustomerRepository,
-        product_catalog: IProductCatalog,
-    ):
+    def __init__(self, customer_repository: ICustomerRepository):
         self.customer_repository = customer_repository
-        self.product_catalog = product_catalog
 
     async def execute(self, input_dto: ListCustomersInput) -> ListCustomersOutput:
         pagination = PaginationInput(page=input_dto.page, per_page=input_dto.per_page)
@@ -50,20 +44,16 @@ class ListCustomersUseCase(IListCustomersUseCase):
         customers: List[Customer] = list_customers_task.result()
         total_items = total_items_task.result()
 
-        data = [await self._map_customer_to_output(customer) for customer in customers]
+        data = [self._map_customer_to_output(customer) for customer in customers]
         pagination = self._map_pagination_to_output(pagination, total_items)
 
         return ListCustomersOutput(data=data, pagination=pagination)
 
-    async def _map_customer_to_output(self, customer: Customer) -> FetchCustomerOutput:
-        favorite_products = await self.product_catalog.fetch_many(
-            customer.favorite_products_ids
-        )
+    def _map_customer_to_output(self, customer: Customer) -> FetchCustomerOutput:
         return FetchCustomerOutput(
             id=customer.str_id,
             name=customer.name,
             email=customer.email,
-            favorite_products=favorite_products,
             created_at=customer.created_at,
             updated_at=customer.updated_at,
         )

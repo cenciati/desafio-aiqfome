@@ -1,9 +1,8 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
 from app.__core__.domain.exception.exception import ValidationError
-from app.__core__.domain.repository.repository import (
-    ICustomerFavoriteProductRepository,
-)
+from app.__core__.domain.repository.repository import \
+    ICustomerFavoriteProductRepository
 from app.__core__.domain.strict_record import strict_record
 
 
@@ -13,7 +12,7 @@ class UnfavoriteProductInput:
     product_id: int
 
 
-class IUnfavoriteProductUseCase:
+class IUnfavoriteProductUseCase(ABC):
     @abstractmethod
     async def execute(self, input_dto: UnfavoriteProductInput) -> None: ...
 

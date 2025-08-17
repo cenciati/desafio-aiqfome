@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     # Environment
     ENV: Literal["dev", "prod"] = Field(
         ...,
-        description="Whether the application is running in development or production",
+        description="Whether the application is running in development or production mode",
     )
     API_PORT: int = Field(..., description="The port the API will listen on")
     API_DEBUG: bool = Field(..., description="Whether the API will run in debug mode")
@@ -24,19 +24,41 @@ class Settings(BaseSettings):
     )
     PRODUCT_CATALOG_API_BASE_URL: str = Field(
         ...,
-        description="The base URL of the product catalog API (global limit)",
+        description="The base URL of the product catalog API",
     )
     PRODUCT_CATALOG_API_TIMEOUT_LIMIT: float = Field(
         ...,
-        description="The timeout limit for requests to the product catalog API (global limit)",
+        description="The timeout limit for requests to the product catalog API",
     )
     PRODUCT_CATALOG_API_MAX_RETRIES: int = Field(
         ...,
         description="The maximum number of retries for requests to the product catalog API",
     )
+    PRODUCT_CATALOG_API_MAX_CONCURRENCY: int = Field(
+        ...,
+        description="The maximum number of concurrent requests to the product catalog API",
+    )
+    PRODUCT_CACHE_SOFT_TTL_MINUTES: int = Field(
+        ...,
+        description=(
+            "Soft TTL (in minutes) for the product cache. "
+            "If a product was fetched within this time window, the API returns the cached data directly. "
+            "If the cache is older than the soft TTL but not yet past the hard TTL, "
+            "the API still returns the cached data but triggers a background refresh."
+        ),
+    )
+    PRODUCT_CACHE_HARD_TTL_MINUTES: int = Field(
+        ...,
+        description=(
+            "Hard TTL (in minutes) for the product cache. "
+            "If the time since the last fetch exceeds this limit, "
+            "the cache is considered invalid and the API must fetch the product "
+            "from the external source (product catalog) before responding."
+        ),
+    )
 
     # Security
-    API_KEY: str = Field(..., description="The API key for bypassing the JWT")
+    API_KEY: str = Field(..., description="The API key for private routes")
     JWT_SECRET_KEY: str = Field(..., description="The secret key for the JWT")
     JWT_EXPIRE_DAYS: int = Field(
         ..., description="The number of days the JWT will expire"

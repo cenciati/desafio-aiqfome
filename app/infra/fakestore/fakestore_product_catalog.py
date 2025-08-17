@@ -1,5 +1,4 @@
-import asyncio
-from typing import List, Optional
+from typing import Optional
 
 from httpx import AsyncClient, TimeoutException
 
@@ -21,9 +20,3 @@ class FakeStoreProductCatalog(IProductCatalog):
     async def fetch_one(self, id: int) -> Optional[Product]:
         response = await self.client.get(f"/products/{id}")
         return Product.to_domain(response.json())
-
-    @retry_with_backoff(TimeoutException)
-    async def fetch_many(self, ids: List[int]) -> List[Product]:
-        tasks = [self.client.get(f"/products/{id}") for id in ids]
-        responses = await asyncio.gather(*tasks)
-        return [Product.to_domain(response.json()) for response in responses]

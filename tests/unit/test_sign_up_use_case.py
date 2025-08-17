@@ -2,11 +2,9 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from app.__core__.application.use_case.sign_up_use_case import (
-    SignUpInput,
-    SignUpOutput,
-    SignUpUseCase,
-)
+from app.__core__.application.use_case.sign_up_use_case import (SignUpInput,
+                                                                SignUpOutput,
+                                                                SignUpUseCase)
 from app.__core__.domain.exception.exception import ValidationError
 
 

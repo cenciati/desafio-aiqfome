@@ -1,4 +1,7 @@
-FROM python:3.13-slim AS builder
+ARG PYTHON_VERSION=3.13
+
+FROM python:${PYTHON_VERSION}-slim AS builder
+ARG PYTHON_VERSION
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -29,7 +32,8 @@ COPY . .
 
 RUN python -m compileall .
 
-FROM python:3.10-slim AS runtime
+FROM python:${PYTHON_VERSION}-slim AS runtime
+ARG PYTHON_VERSION
 
 RUN addgroup --system app && adduser --system --ingroup app appuser
 
@@ -38,7 +42,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-COPY --from=builder /usr/local/lib/python3.10 /usr/local/lib/python3.10
+COPY --from=builder /usr/local/lib/python${PYTHON_VERSION} /usr/local/lib/python${PYTHON_VERSION}
 COPY --from=builder /usr/local/bin /usr/local/bin
 COPY --from=builder /app /app
 

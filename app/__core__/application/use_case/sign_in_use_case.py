@@ -1,4 +1,4 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
 from app.__core__.application.gateways.jwt_service import IJWTService
 from app.__core__.domain.exception.exception import AuthenticationError
@@ -17,7 +17,7 @@ class SignInOutput:
     access_token: str
 
 
-class ISignInUseCase:
+class ISignInUseCase(ABC):
     @abstractmethod
     async def execute(self, input_dto: SignInInput) -> SignInOutput: ...
 

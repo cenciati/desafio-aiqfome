@@ -1,4 +1,4 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
 from app.__core__.domain.entity.customer import Customer
 from app.__core__.domain.exception.exception import ValidationError
@@ -18,7 +18,7 @@ class SignUpOutput:
     id: str
 
 
-class ISignUpUseCase:
+class ISignUpUseCase(ABC):
     @abstractmethod
     async def execute(self, input_dto: SignUpInput) -> SignUpOutput: ...
 

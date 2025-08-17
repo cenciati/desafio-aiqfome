@@ -40,7 +40,7 @@ def retry_with_backoff(
                     return None
 
                 except Exception as exc:
-                    logger.error("unexpected_error", exc_info=exc)
+                    logger.exception("unexpected_error")
                     raise RetryError(exc)
 
         return async_wrapper

@@ -8,6 +8,7 @@ from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 
 from app.__core__.application.logger import logger
 from app.__core__.application.settings import get_settings
+from app.__core__.application.task_manager import TaskManager
 from app.infra.dependency import close_httpx_client
 from app.infra.http.middleware.correlation_id import CorrelationIdMiddleware
 from app.infra.http.router import auth, customers, favorites
@@ -20,17 +21,19 @@ settings = get_settings()
 async def lifespan(_: FastAPI):
     logger.info("app_startup_complete")
     await init_db()
+    app.state.task_manager = TaskManager()
 
     yield
 
     await close_db()
     await close_httpx_client()
+    await app.state.task_manager.shutdown()
     logger.info("app_shutdown_complete")
 
 
 def bootstrap() -> FastAPI:
     app = FastAPI(
-        title="aiqfome Favorites API",
+        title="aiqfome - Favorites API",
         version="1.0.0",
         lifespan=lifespan,
         docs_url="/docs",

@@ -1,4 +1,4 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from typing import Optional
 
 from app.__core__.domain.entity.customer import UpdateCustomerProps
@@ -20,7 +20,7 @@ class UpdateCustomerInput:
     email: Optional[str] = None
 
 
-class IUpdateCustomerUseCase:
+class IUpdateCustomerUseCase(ABC):
     @abstractmethod
     async def execute(self, input_dto: UpdateCustomerInput) -> None: ...
 
