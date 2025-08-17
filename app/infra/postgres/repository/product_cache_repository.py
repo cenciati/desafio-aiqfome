@@ -40,8 +40,8 @@ class PostgresProductCacheRepository(IProductCacheRepository):
                 title=entity.title,
                 image_url=entity.image_url,
                 price=entity.price,
-                review_rate=entity.review.rate,
-                review_count=entity.review.count,
+                review_rate=entity.review.rate if entity.review else None,
+                review_count=entity.review.count if entity.review else None,
                 fetched_at=datetime.now(),
             )
         )

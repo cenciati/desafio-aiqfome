@@ -13,8 +13,8 @@ CREATE TABLE IF NOT EXISTS products_cache (
     title VARCHAR(255) NOT NULL,
     image_url TEXT NOT NULL,
     price DECIMAL(10, 2) NOT NULL,
-    review_rate DECIMAL(10, 2) NOT NULL,
-    review_count INT NOT NULL,
+    review_rate DECIMAL(10, 2),
+    review_count INT,
     fetched_at TIMESTAMPTZ NOT NULL
 );
 

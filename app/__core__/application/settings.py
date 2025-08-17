@@ -11,35 +11,41 @@ class Settings(BaseSettings):
 
     # Environment
     ENV: Literal["dev", "prod"] = Field(
-        ...,
+        default="dev",
         description="Whether the application is running in development or production mode",
     )
-    API_PORT: int = Field(..., description="The port the API will listen on")
-    API_DEBUG: bool = Field(..., description="Whether the API will run in debug mode")
+    API_PORT: int = Field(
+        default=8080,
+        description="The port the API will listen on",
+    )
+    API_DEBUG: bool = Field(
+        default=True,
+        description="Whether the API will run in debug mode",
+    )
 
     # Application
     PAGINATION_PER_PAGE_LIMIT: int = Field(
-        ...,
+        default=200,
         description="The maximum number of items per page (global limit)",
     )
     PRODUCT_CATALOG_API_BASE_URL: str = Field(
-        ...,
+        default="https://fakestoreapi.com",
         description="The base URL of the product catalog API",
     )
     PRODUCT_CATALOG_API_TIMEOUT_LIMIT: float = Field(
-        ...,
+        default=5.0,
         description="The timeout limit for requests to the product catalog API",
     )
     PRODUCT_CATALOG_API_MAX_RETRIES: int = Field(
-        ...,
+        default=3,
         description="The maximum number of retries for requests to the product catalog API",
     )
     PRODUCT_CATALOG_API_MAX_CONCURRENCY: int = Field(
-        ...,
+        default=10,
         description="The maximum number of concurrent requests to the product catalog API",
     )
     PRODUCT_CACHE_SOFT_TTL_MINUTES: int = Field(
-        ...,
+        default=5,
         description=(
             "Soft TTL (in minutes) for the product cache. "
             "If a product was fetched within this time window, the API returns the cached data directly. "
@@ -48,30 +54,53 @@ class Settings(BaseSettings):
         ),
     )
     PRODUCT_CACHE_HARD_TTL_MINUTES: int = Field(
-        ...,
+        default=30,
         description=(
             "Hard TTL (in minutes) for the product cache. "
             "If the time since the last fetch exceeds this limit, "
             "the cache is considered invalid and the API must fetch the product "
-            "from the external source (product catalog) before responding."
+            "from the external source (product catalog) before responding.",
         ),
     )
 
     # Security
-    API_KEY: str = Field(..., description="The API key for private routes")
-    JWT_SECRET_KEY: str = Field(..., description="The secret key for the JWT")
+    API_KEY: str = Field(
+        default="secret-api-key",
+        description="The API key for private routes",
+    )
+    JWT_SECRET_KEY: str = Field(
+        default="secret-key",
+        description="The secret key for the JWT",
+    )
     JWT_EXPIRE_DAYS: int = Field(
-        ..., description="The number of days the JWT will expire"
+        default=2,
+        description="The number of days the JWT will expire",
     )
 
     # Database
-    DATABASE_DIALECT: str = Field(..., description="The dialect of the database")
-    DATABASE_HOST: str = Field(..., description="The host of the database")
-    DATABASE_PORT: int = Field(..., description="The port of the database")
-    DATABASE_USER: str = Field(..., description="The user of the database")
-    DATABASE_PASSWORD: str = Field(..., description="The password of the database")
-    DATABASE_NAME: str = Field(..., description="The name of the database")
-    DATABASE_POOL_SIZE: int = Field(..., description="The size of the database pool")
+    DATABASE_DIALECT: str = Field(
+        default="postgresql",
+        description="The dialect of the database",
+    )
+    DATABASE_HOST: str = Field(
+        default="postgres",
+        description="The host of the database",
+    )
+    DATABASE_PORT: int = Field(default=5432, description="The port of the database")
+    DATABASE_USER: str = Field(
+        default="postgres", description="The user of the database"
+    )
+    DATABASE_PASSWORD: str = Field(
+        default="postgres",
+        description="The password of the database",
+    )
+    DATABASE_NAME: str = Field(
+        default="aiqfome",
+        description="The name of the database",
+    )
+    DATABASE_POOL_SIZE: int = Field(
+        default=5, description="The size of the database pool"
+    )
 
     @computed_field
     @property

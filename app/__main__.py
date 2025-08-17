@@ -1,3 +1,5 @@
+import asyncio
+import sys
 from contextlib import asynccontextmanager
 
 import uvicorn
@@ -14,11 +16,14 @@ from app.infra.http.middleware.correlation_id import CorrelationIdMiddleware
 from app.infra.http.router import auth, customers, favorites
 from app.infra.postgres.database import close_db, init_db
 
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
 settings = get_settings()
 
 
 @asynccontextmanager
-async def lifespan(_: FastAPI):
+async def lifespan(app: FastAPI):
     logger.info("app_startup_complete")
     await init_db()
     app.state.task_manager = TaskManager()

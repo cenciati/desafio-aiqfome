@@ -1,5 +1,6 @@
 import asyncio
 from abc import ABC, abstractmethod
+from datetime import timedelta
 from math import ceil
 from typing import List, Optional
 
@@ -8,6 +9,7 @@ from app.__core__.application.task_manager import TaskManager
 from app.__core__.application.use_case.base_product_cache_use_case import \
     BaseProductCacheUseCase
 from app.__core__.domain.entity.product import Product, Review
+from app.__core__.domain.exception.exception import ValidationError
 from app.__core__.domain.repository.pagination import (PaginationInput,
                                                        PaginationOutput)
 from app.__core__.domain.repository.repository import (
@@ -133,7 +135,10 @@ class ListCustomerFavoriteProductsUseCase(
         if len(tasks) > 0:
             await asyncio.gather(*tasks)
 
-        return [p for p in output_data if p is not None]
+        return [value for value in output_data if value is not None]
+
+    def _is_cache_stale(self, age: timedelta) -> bool:
+        return age > self.hard_ttl
 
     async def _fetch_and_insert_with_index(
         self, product_id: int, idx: int, output_data: List[Optional[Product]]
@@ -144,7 +149,13 @@ class ListCustomerFavoriteProductsUseCase(
     async def _fetch_and_refresh_with_index(
         self, product_id: int, idx: int, output_data: List[Optional[Product]]
     ):
-        product = await self._fetch_and_refresh(product_id)
+        async with self._catalog_semaphore:
+            product = await self.product_catalog.fetch_one(product_id)
+
+        if product is None:
+            raise ValidationError("product_not_found")
+
+        await self.product_cache_repository.refresh(product)
         output_data[idx] = product
 
     def _map_pagination_to_output(

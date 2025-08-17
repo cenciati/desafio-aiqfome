@@ -1,7 +1,6 @@
 from typing import Any, List, Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 from sqlmodel import delete, func, select, update
 
 from app.__core__.domain.entity.customer import Customer
@@ -26,11 +25,7 @@ class PostgresCustomerRepository(ICustomerRepository):
         return await self._fetch_one_by_field("email", email)
 
     async def _fetch_one_by_field(self, field: str, value: Any) -> Optional[Customer]:
-        query = (
-            select(CustomerORM)
-            .where(getattr(CustomerORM, field) == value)
-            .options(selectinload(CustomerORM.favorite_products))
-        )
+        query = select(CustomerORM).where(getattr(CustomerORM, field) == value)
         result = await self.session.execute(query)
         customer_orm = result.scalar_one_or_none()
         if customer_orm is None:
@@ -38,7 +33,7 @@ class PostgresCustomerRepository(ICustomerRepository):
         return Customer.to_domain(customer_orm)
 
     async def fetch_many(self, pagination: PaginationInput) -> List[Customer]:
-        query = select(CustomerORM).options(selectinload(CustomerORM.favorite_products))
+        query = select(CustomerORM)
 
         offset = (pagination.page - 1) * pagination.per_page
         query = query.offset(offset)

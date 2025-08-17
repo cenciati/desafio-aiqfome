@@ -42,23 +42,7 @@ class Product:
             raise ValidationError("invalid_review_data_type")
 
     @classmethod
-    def to_domain(cls, raw_product: ProductCacheORM | dict) -> Product:
-        if isinstance(raw_product, dict):
-            return cls(
-                id=raw_product["id"],
-                title=raw_product["title"],
-                image_url=raw_product["image"],
-                price=float(raw_product["price"]),
-                review=(
-                    Review(
-                        rate=float(raw_product["rating"]["rate"]),
-                        count=int(raw_product["rating"]["count"]),
-                    )
-                    if raw_product["rating"]
-                    else None
-                ),
-            )
-
+    def to_domain(cls, raw_product: ProductCacheORM) -> Product:
         return cls(
             id=raw_product.id,
             title=raw_product.title,
@@ -72,6 +56,7 @@ class Product:
                 if raw_product.review_rate
                 else None
             ),
+            fetched_at=raw_product.fetched_at,
         )
 
     def to_orm(self) -> ProductCacheORM:
@@ -80,7 +65,24 @@ class Product:
             title=self.title,
             image_url=self.image_url,
             price=self.price,
-            review_rate=self.review.rate,
-            review_count=self.review.count,
+            review_rate=self.review.rate if self.review else None,
+            review_count=self.review.count if self.review else None,
             fetched_at=self.fetched_at,
+        )
+
+    @classmethod
+    def from_api_to_domain(cls, raw_product: dict) -> Product:
+        return cls(
+            id=raw_product["id"],
+            title=raw_product["title"],
+            image_url=raw_product["image"],
+            price=float(raw_product["price"]),
+            review=(
+                Review(
+                    rate=float(raw_product["rating"]["rate"]),
+                    count=int(raw_product["rating"]["count"]),
+                )
+                if raw_product["rating"]
+                else None
+            ),
         )

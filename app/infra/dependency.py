@@ -66,6 +66,7 @@ settings = get_settings()
 client: Optional[AsyncClient] = None
 
 
+# Sessions
 def get_httpx_client() -> AsyncClient:
     global client
     if client is None:
@@ -89,10 +90,6 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
 
 
 # Customers
-def get_task_manager(request: Request) -> TaskManager:
-    return request.app.state.task_manager
-
-
 def get_jwt_service() -> IJWTService:
     return JWTService()
 
@@ -147,6 +144,10 @@ def get_delete_customer_use_case(
 
 
 # Favorites
+def get_task_manager(request: Request) -> TaskManager:
+    return request.app.state.task_manager
+
+
 def get_customer_favorite_product_repository(
     session: AsyncSession = Depends(get_async_session),
 ) -> ICustomerFavoriteProductRepository:

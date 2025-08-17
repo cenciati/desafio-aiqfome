@@ -19,4 +19,4 @@ class FakeStoreProductCatalog(IProductCatalog):
     @retry_with_backoff(TimeoutException)
     async def fetch_one(self, id: int) -> Optional[Product]:
         response = await self.client.get(f"/products/{id}")
-        return Product.to_domain(response.json())
+        return Product.from_api_to_domain(response.json())

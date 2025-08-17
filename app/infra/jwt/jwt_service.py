@@ -15,6 +15,8 @@ TokenPayload = TypedDict("TokenPayload", {"sub": str})
 
 
 class JWTService(IJWTService):
+    ALGORITHM = "HS256"
+
     def create_token(self, customer_id: str) -> str:
         expire_at = datetime.now(timezone.utc) + timedelta(
             days=settings.JWT_EXPIRE_DAYS
@@ -25,12 +27,14 @@ class JWTService(IJWTService):
                 "exp": expire_at,
             },
             settings.JWT_SECRET_KEY,
-            algorithm="HS256",
+            algorithm=self.ALGORITHM,
         )
 
     def verify_token(self, token: str) -> dict:
         try:
-            return jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=["HS256"])
+            return jwt.decode(
+                token, settings.JWT_SECRET_KEY, algorithms=[self.ALGORITHM]
+            )
         except jwt.ExpiredSignatureError:
             raise HTTPException(status_code=401, detail="token_expired")
         except Exception:

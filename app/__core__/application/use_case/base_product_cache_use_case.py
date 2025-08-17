@@ -37,16 +37,6 @@ class BaseProductCacheUseCase:
         await self.product_cache_repository.insert_one(product)
         return product
 
-    async def _fetch_and_refresh(self, product_id: int) -> Product:
-        async with self._catalog_semaphore:
-            product = await self.product_catalog.fetch_one(product_id)
-
-        if product is None:
-            raise ValidationError("product_not_found")
-
-        await self.product_cache_repository.refresh(product)
-        return product
-
     async def _refresh_cache(self, product_id: int) -> None:
         try:
             async with self._catalog_semaphore:
@@ -66,6 +56,3 @@ class BaseProductCacheUseCase:
 
     def _is_cache_fresh(self, age: timedelta) -> bool:
         return age <= self.soft_ttl
-
-    def _is_cache_stale(self, age: timedelta) -> bool:
-        return age > self.hard_ttl
